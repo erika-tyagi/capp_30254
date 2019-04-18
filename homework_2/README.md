@@ -1,0 +1,1 @@
+The write-up (including the application of pipeline) is fully contained in CAPP 30254 - Homework 2.ipynb. The pipeline itself is built inside create_pipeline.py. The raw data (in CSV format) is in the data folder. 
