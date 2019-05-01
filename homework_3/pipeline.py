@@ -25,8 +25,10 @@ And the following evaluation metrics:
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.utils import check_X_y
 
 from sklearn.model_selection import train_test_split 
+from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -44,8 +46,9 @@ from sklearn.metrics import roc_curve
 from sklearn.metrics import auc
 from sklearn.metrics import confusion_matrix
 
-
-##### VALIDATION FUNCTIONS #####
+################################################################################
+##### VALIDATION FUNCTIONS 
+################################################################################
 
 def split(df, feature_cols, target_col, test_size, seed): 
     '''
@@ -73,7 +76,20 @@ def temporal_split(df, feature_cols, target_col, date_col, test_start, test_end)
     return X_train, X_test, y_train, y_test
 
 
+################################################################################
 ##### CLASSIFIER FUNCTIONS #####
+################################################################################
+
+def build_Baseline(X_train, y_train, X_test, y_test, strategy): 
+    '''
+    Trains, fits, and evaluates a dummy/baseline classifer using X_train, y_train, X_test, y_test. 
+    Parameters (and examples) include: 
+        - strategy (to generate predictions): stratified, most_frequent, prior, uniform
+    '''
+    X_train, y_train = check_X_y(X_train, y_train)
+    model = DummyClassifier(strategy=strategy)
+    model.fit(X_train, y_train)
+    return evaluate_baseline(model, X_test, y_test)
 
 def build_LogReg(X_train, y_train, X_test, solver, penalty, C, threshold): 
     '''
@@ -153,7 +169,7 @@ def build_GradBoost(X_train, y_train, X_test, n_estimators, learning_rate, thres
     '''
     Trains and fits a gradient boosting classifier using X_train, y_train, and X_test.
     Parameters (and examples) include: 
-        - n_estimators (number of bossting stages): 100 
+        - n_estimators (number of boosting stages): 100 
         - learning_rate (contribution of each tree): 0.1 
         - threshold (to convert scores to labels): 0.5 
     '''
@@ -163,7 +179,10 @@ def build_GradBoost(X_train, y_train, X_test, n_estimators, learning_rate, thres
     return predict(model, X_test, threshold)
 
 
+################################################################################
 ##### EVALUATION FUNCTIONS #####
+################################################################################
+
 def predict(model, X_test, threshold): 
     '''
     Returns prediction scores and labels (at the threshold) testing the model on X_test. 
@@ -205,6 +224,21 @@ def roc(y_test, pred_scores):
     plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
     plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
     plt.show()
+
+def evaluate_baseline(model, X_test, y_test): 
+    '''
+    Returns a dictionary containing a variety of evaluation metrics 
+    for a dummy/baseline classifer. 
+    '''
+    pred_labels = model.predict(X_test)
+    evaluation_dict = {
+        'accuracy': accuracy_score(y_test, pred_labels), 
+        'precision': precision_score(y_test, pred_labels), 
+        'recall': recall_score(y_test, pred_labels), 
+        'f1': f1_score(y_test, pred_labels), 
+        'confusion_matrix': confusion_matrix(y_test, pred_labels).ravel()}
+    return evaluation_dict
+
 
 
 
