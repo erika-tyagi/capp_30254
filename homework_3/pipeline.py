@@ -9,7 +9,7 @@ This pipeline includes the following classifiers:
 	- K-Nearest Neighbor
 	- Decision Trees
 	- SVM
-	- Random Forests
+	- Random Forests (Bagging)
 	- Gradient Boosting 
 
 And the following evaluation metrics: 
