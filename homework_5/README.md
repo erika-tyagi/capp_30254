@@ -9,5 +9,7 @@ The goal of this assignment is to improve the pipeline by adding more classifier
 The raw data (in CSV format) is stored in the data folder, and the three components of the assignment are contained in the following files: 
 
 - Coding: pipeline_v3.py
-- Analysis: homework_5_analysis.ipynb
+- Analysis: 
+	- homework_5_analysis.ipynb 
+	- evaluation_results.csv (full table with evaluation metrics across temporal splits, classifiers, parameters, k-percentage thresholds) 
 - Report: homework_5_report.ipynb 
