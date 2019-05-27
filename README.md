@@ -1,2 +1,2 @@
-# capp_30254_ml
-CAPP 30254 - Machine Learning
+## CAPP 30254 - Machine Learning for Public Policy
+Spring, 2019 
