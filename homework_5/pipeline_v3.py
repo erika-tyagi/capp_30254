@@ -21,6 +21,10 @@ from sklearn.ensemble import ExtraTreesClassifier
 # Adopted from https://www.kaggle.com/dansbecker/using-categorical-data-with-one-hot-encoding
 
 def pre_process(train_df, test_df, target_col, feature_cols): 
+    '''
+    Pre-processes data for the pipeline for the training and testing datasets
+    separately. 
+    '''
     X_train, y_train = generate_features(train_df, target_col, feature_cols)
     X_test, y_test = generate_features(test_df, target_col, feature_cols)
 
@@ -30,6 +34,11 @@ def pre_process(train_df, test_df, target_col, feature_cols):
     return X_train, X_test, y_train, y_test 
 
 def generate_features(df, target_col, feature_cols): 
+    '''
+    Helper function for pre-process to (1) convert categorical into dummy 
+    features, and (2) impute missing data using the column mean (and creating 
+    a dummy indicating the value was originally missing). 
+    '''
     X_df = df[feature_cols]
     y_df = df[target_col]
     X_df = X_df.fillna(X_df.mean())
@@ -41,6 +50,12 @@ def generate_features(df, target_col, feature_cols):
 ################################################################################
 
 def temporal_split(df, start_date, end_date, test_window, prediction_horizon, date_col, i): 
+    '''
+    Splits data into a training and testing set using a temporal split. The 
+    training set is based on the length of the test_window, and the testing set 
+    spans the start_date through the start of the testing set– leaving a gap 
+    for the prediction window. 
+    '''
     df[date_col] = pd.to_datetime(df[date_col])
     train_start = pd.to_datetime(start_date)
     test_start = pd.to_datetime(start_date) + (i * test_window)
@@ -59,6 +74,10 @@ def temporal_split(df, start_date, end_date, test_window, prediction_horizon, da
 ################################################################################
 
 def build_classifier(clf, model, X_train, y_train, X_test):
+    '''
+    Builds (trains and fits) a classifier, and returns prediction scores. 
+    clf is a string, and model is an sklearn classifier. 
+    '''
     model.fit(X_train, y_train)
     if clf == 'SVM': 
         scores = model.decision_function(X_test)
@@ -73,15 +92,26 @@ def build_classifier(clf, model, X_train, y_train, X_test):
 # Adopted from https://github.com/rayidghani/magicloops/blob/master/mlfunctions.py
 
 def joint_sort_descending(l1, l2):
+    '''
+    Helper function for metrics_at_k (sorts two numpy arrays in descending order 
+    based on l1). 
+    '''
     idx = np.argsort(l1)[::-1]
     return l1[idx], l2[idx]
 
 def generate_binary_at_k(y_scores, k):
+    '''
+    Helper function for metrics_at_k (assigns a label of 1 for the top k% of 
+    the sorted dataset). 
+    '''
     cutoff_index = int(len(y_scores) * (k))
     test_predictions_binary = [1 if x < cutoff_index else 0 for x in range(len(y_scores))]
     return test_predictions_binary
 
 def metrics_at_k(y_true, y_scores, k):
+    '''
+    Computes evaluation metrics at the top k%. 
+    '''
     y_scores, y_true = joint_sort_descending(np.array(y_scores), np.array(y_true))    
     preds_at_k = generate_binary_at_k(y_scores, k)    
 
@@ -93,6 +123,9 @@ def metrics_at_k(y_true, y_scores, k):
     return [k, accuracy, precision, recall, f1, auc_roc]
 
 def plot_precision_recall_n(y_true, y_prob):
+    '''
+    Creates precision-recall curves at all thresholds (between 0 and 1). 
+    '''
     precision_curve, recall_curve, pr_thresholds = precision_recall_curve(y_true, y_prob)
     precision_curve = precision_curve[:-1]
     recall_curve = recall_curve[:-1]
